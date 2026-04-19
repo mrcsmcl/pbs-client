@@ -16,18 +16,18 @@ services:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 300s
       timeout: 10s
-      start_period: 30s
-      retries: 3
+      start_period: 120s
+      retries: 5
     deploy:
       mode: global
       placement:
         constraints:
           - node.role == worker
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 30s
-        max_attempts: 5
-        window: 120s
+        max_attempts: 3
+        window: 300s
       resources:
         limits:
           memory: 512M
@@ -53,8 +53,8 @@ services:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 300s
       timeout: 10s
-      start_period: 30s
-      retries: 3
+      start_period: 120s
+      retries: 5
     deploy:
       mode: replicated
       replicas: 1
@@ -62,10 +62,10 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 30s
-        max_attempts: 5
-        window: 120s
+        max_attempts: 3
+        window: 300s
       resources:
         limits:
           memory: 512M

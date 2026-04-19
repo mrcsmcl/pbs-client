@@ -50,6 +50,8 @@ Each service backs up every subdirectory under its mounted path as a separate PB
 | `PBS_FINGERPRINT` | ✅ | — | Server TLS certificate fingerprint |
 | `BACKUP_PATH_WORKER` | ✅ | — | Host path to back up on worker nodes |
 | `BACKUP_PATH_MANAGER` | ✅ | — | Host path to back up on manager node |
+| `BACKUP_STATE_WORKER` | ✅ | — | Host path for worker state/logs persistence |
+| `BACKUP_STATE_MANAGER` | ✅ | — | Host path for manager state/logs persistence |
 | `BACKUP_PATH` | ✅ | `/data` | Path inside container (do not change) |
 | `BACKUP_INTERVAL` | ❌ | `43200` | Seconds between backup cycles (12h) |
 | `BACKUP_ID` | ❌ | hostname | Prefix for backup identifiers |
@@ -62,6 +64,23 @@ The backup script excludes common development/runtime artifacts:
 - `**/tmp`, `**/.tmp`
 - `**/cache`, `**/.cache`
 - `**/logs`, `**/*.log`
+
+## Backup Scheduling & State Management
+
+The backup script implements intelligent scheduling to prevent duplicate backups:
+
+- **State file**: Tracks the last backup execution timestamp in `${BACKUP_STATE_DIR}/last_run`
+- **Log file**: Persistent logs written to `${BACKUP_STATE_DIR}/backup.log`
+- **Interval checking**: On every startup or container restart, verifies if the interval has elapsed before running
+- **Graceful waiting**: If restarted within the interval, waits for the remaining time
+
+This prevents accidental duplicate backups when containers are restarted and ensures predictable backup timing.
+
+**Example scenario:**
+- Backup interval: 12 hours
+- First backup: 10:00 AM
+- Container restart: 10:30 AM → Waits ~11.5 hours before next backup
+- Next backup: 10:00 PM (12 hours after first)
 
 ## Building Locally
 

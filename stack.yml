@@ -11,6 +11,7 @@ services:
       BACKUP_ID: "{{.Node.Hostname}}"
     volumes:
       - ${BACKUP_PATH_WORKER:?err}:/data:ro
+      - ${BACKUP_STATE_WORKER:?err}:/var/lib/backup
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 300s
@@ -47,6 +48,7 @@ services:
       BACKUP_ID: "{{.Node.Hostname}}"
     volumes:
       - ${BACKUP_PATH_MANAGER:?err}:/data:ro
+      - ${BACKUP_STATE_MANAGER:?err}:/var/lib/backup
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 300s
